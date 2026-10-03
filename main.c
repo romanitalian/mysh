@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 
+int handle_redirect(char *args[]);
+
 int main(int argc, char *argv[])
 {
 
@@ -27,16 +29,16 @@ int main(int argc, char *argv[])
 
     // Split buf into args
     // example: ls -lah
-    char *args[20]; // TODO check args count correctly, remove magic number - 20
+    char *args[20]; // TODO check args count correctly, remove magic number: 20!
     int nargs = 0;
-    
+
     args[nargs] = strtok(buf, " "); // first arg is the command
     while (args[nargs] != NULL)
     {
       args[++nargs] = strtok(NULL, " "); // next args are the arguments
     }
 
-    if (args[0] == NULL) 
+    if (args[0] == NULL)
     {
         continue;
     }
@@ -52,13 +54,14 @@ int main(int argc, char *argv[])
 
     if (pid > 0)
     {
-      // we are the parent
+      // we are the parent!
       // wait for the child - finished. Thats all.
       wait(NULL);
     }
     else
     {
-      // we are the child
+      handle_redirect(args);
+      // we are the child!
       // execlp(buf, buf, NULL);
       execvp(args[0], args);
 
@@ -69,4 +72,32 @@ int main(int argc, char *argv[])
       exit(1);
     }
   }
+}
+
+// Handle redirect stdout
+// Return 1 if successful
+// Return 0 is no redirect was needed
+// Return -1 if something broke
+int handle_redirect(char *args[])
+{
+  for (int i = 0; args[i] != NULL; i++)
+  {
+    if (strcmp(args[i], ">") == 0)
+    {
+      // Assume next args is the file to write to
+      // stdout = fopen(args[i + 1], "w");
+      if (freopen(args[i + 1], "w", stdout) == NULL)
+      {
+        return -1;
+      }
+
+      // Terminate args at the ">" symbol
+      args[i] = NULL;
+      args[i + 1] = NULL;
+
+      return 1;
+    }
+  }
+
+  return 0;
 }
