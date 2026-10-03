@@ -1,8 +1,10 @@
-
+BIN = mysh
 
 compile:
-	clang main.c -o mm
+	clang main.c -o $(BIN)
 
 cc:
-	make compile
+	rm -f $(BIN) && make compile
 
+r:
+	make cc && ./$(BIN)

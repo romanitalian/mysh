@@ -8,16 +8,38 @@ int handle_redirect(char *args[]);
 int main(int argc, char *argv[])
 {
 
+  int interactive = 1;
+
+  // read from file and execute commands from file
+  if (argc > 1)
+  {
+    // First arg is the name of the script file
+    if (freopen(argv[1], "r", stdin) == NULL)
+    {
+      fprintf(stderr, "Can't read from script file %s\n", argv[1]);
+      fprintf(stderr, "Exiting...\n");
+      exit(1);
+    }
+    interactive = 0;
+  }
+
   while(1)
   {
     // String to hold input buffer
     char buf[1024];
 
     // Prompt
-    printf("$ ");
+    if (interactive)
+    {
+      printf("$ ");
+    }
 
     // Get input from keyboard
-    fgets(buf, 1024, stdin);
+    // fgets(buf, 1024, stdin);
+    if (fgets(buf, 1024, stdin) == NULL)
+    {
+      break;
+    }
 
     // Trim newline
     char *nl = strchr(buf, '\n');
@@ -25,6 +47,13 @@ int main(int argc, char *argv[])
     {
       // replace newline '\n' with symbol for end of string '\0'
       *nl = '\0';
+    }
+
+    // Remove comments
+    char *hash = strchr(buf, '#');
+    if (hash)
+    {
+      *hash = '\0';
     }
 
     // Split buf into args
