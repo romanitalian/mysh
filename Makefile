@@ -1,10 +1,23 @@
 BIN = mysh
 
+.PHONY: all compile clean test run cc r
+
+all: compile
+
 compile:
 	clang main.c -o $(BIN)
 
 cc:
-	rm -f $(BIN) && make compile
+	rm -f $(BIN) && $(MAKE) compile
 
-r:
-	make cc && ./$(BIN)
+clean:
+	rm -f $(BIN) mm
+
+test: compile
+	./$(BIN) examples/hello.sh
+
+run: compile
+	./$(BIN)
+
+r: cc
+	./$(BIN)
